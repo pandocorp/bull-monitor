@@ -58,7 +58,7 @@ node(nodeLabel) {
     }
     stage('Building Bull monitor') {
         sh '$(aws ecr get-login --no-include-email --region ap-south-1)'
-        sh "docker build --push --tag 669650451927.dkr.ecr.ap-south-1.amazonaws.com/bull-monitor:${dockerImageNumber} ."
+        sh "docker buildx build --push --tag 669650451927.dkr.ecr.ap-south-1.amazonaws.com/bull-monitor:${dockerImageNumber} ."
     }
     stage('summary') {
         manager.createSummary("https://ci.gopando.in/static/243b2051/images/48x48/search.png").appendText("<div>Deploy : ${dockerImageNumber}</div>", false)
