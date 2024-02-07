@@ -3,7 +3,8 @@ WORKDIR /app
 RUN apk add --no-cache openssh git
 COPY package* ./
 RUN npm install --omit=dev
-# COPY dist ./
+RUN npm run build
+COPY dist ./
 
 FROM golang:latest as go
 RUN go install -v github.com/oauth2-proxy/oauth2-proxy/v7@latest
