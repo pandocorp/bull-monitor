@@ -7,7 +7,7 @@ RUN apk add --no-cache openssh git
 COPY package* ./
 RUN npm install
 RUN npm run build
-
+COPY /root/bull-monitor/node_modules /root/bull-monitor/dist 
 FROM golang:latest as go
 RUN go install -v github.com/oauth2-proxy/oauth2-proxy/v7@latest
 
