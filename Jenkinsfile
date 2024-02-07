@@ -56,6 +56,11 @@ node(nodeLabel) {
         /* Let's make sure we have the repository cloned to our workspace */
         checkout scm;
     }
+    stage('installing packages and building') {
+        /* Let's make sure we have the repository cloned to our workspace */
+        sh "npm install"
+        sh "npm run build"
+    }
     stage('Building Bull monitor') {
         sh '$(aws ecr get-login --no-include-email --region ap-south-1)'
         sh "docker buildx build --push --tag 669650451927.dkr.ecr.ap-south-1.amazonaws.com/bull-monitor:${dockerImageNumber} ."
