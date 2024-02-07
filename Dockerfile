@@ -1,13 +1,9 @@
 FROM node:18-alpine as build
-
-RUN mkdir /root/bull-monitor/
-ADD . /root/bull-monitor/
-WORKDIR /root/bull-monitor/
+WORKDIR /app
 RUN apk add --no-cache openssh git
 COPY package* ./
-RUN npm install
-RUN npm run build
-# COPY dist/ ./
+RUN npm install --omit=dev
+COPY dist ./
 
 FROM golang:latest as go
 RUN go install -v github.com/oauth2-proxy/oauth2-proxy/v7@latest
@@ -21,9 +17,9 @@ ARG LOG_LABEL=bull-monitor
 ARG ALTERNATE_PORT=8081
 ARG PORT=3000
 ARG OAUTH2_PROXY_SKIP_AUTH_ROUTES='/metrics,/health,/docs'
-WORKDIR /root/bull-monitor/
+WORKDIR /app
 COPY --from=go /go/bin/oauth2-proxy ./
-COPY --from=build /root/bull-monitor/dist ./
+COPY --from=build /app ./
 COPY docker-entrypoint.sh .
 ENV NODE_ENV="production" \
     ALTERNATE_PORT=$ALTERNATE_PORT \
