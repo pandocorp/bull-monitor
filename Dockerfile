@@ -1,26 +1,28 @@
 FROM node:18-alpine as build
-WORKDIR /app
+
+RUN mkdir /root/bull-monitor/
+ADD . /root/bull-monitor/
+WORKDIR /root/bull-monitor/
 RUN apk add --no-cache openssh git
 COPY package* ./
-RUN npm install --omit=dev
+RUN npm install
 RUN npm run build
-COPY dist ./
 
 FROM golang:latest as go
 RUN go install -v github.com/oauth2-proxy/oauth2-proxy/v7@latest
 
 FROM node:18-alpine
 # https://stackoverflow.com/questions/66963068/docker-alpine-executable-binary-not-found-even-if-in-path
-RUN apk add --no-cache libc6-compat curl
+# RUN apk add --no-cache libc6-compat curl
 ARG BUILD_VERSION
 ARG LOG_LEVEL=info
 ARG LOG_LABEL=bull-monitor
 ARG ALTERNATE_PORT=8081
 ARG PORT=3000
 ARG OAUTH2_PROXY_SKIP_AUTH_ROUTES='/metrics,/health,/docs'
-WORKDIR /app
+WORKDIR /root/bull-monitor/dist
 COPY --from=go /go/bin/oauth2-proxy ./
-COPY --from=build /app ./
+COPY --from=build /root/bull-monitor/dist ./
 COPY docker-entrypoint.sh .
 ENV NODE_ENV="production" \
     ALTERNATE_PORT=$ALTERNATE_PORT \
