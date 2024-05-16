@@ -245,7 +245,7 @@ export class BullQueuesService implements OnModuleInit, OnModuleDestroy {
     const loadedQueues = new Set([]);
     return new Promise((resolve, reject) => {
       client
-        .scanStream({ match, count: 100 })
+        .scanStream({ type: 'hash', match, count: 100 })
         .on('data', (keys: string[]) => {
           for (const key of keys) {
             const queueMatch = parseBullQueue(key);
